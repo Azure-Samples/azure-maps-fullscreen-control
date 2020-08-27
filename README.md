@@ -18,10 +18,10 @@ Note that not all browsers support fullscreen mode, see https://caniuse.com/#sea
 **Samples**
 
 [Fullscreen control](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control)
-<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control.png" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control)
+<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control.jpg" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control)
 
 [Fullscreen control options](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control%20options)
-<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control-options.png" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control%20options)
+<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control-options.jpg" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control%20options)
 
 ## Getting started
 
