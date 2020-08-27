@@ -88,43 +88,6 @@ MIT License
         return Namespace;
     }());
 
-    var Utils = /** @class */ (function () {
-        function Utils() {
-        }
-        /**
-         * Checks to see if the map is in high contrast mode, and if so, which high contrast style to align with.
-         * @param map The map instance.
-         */
-        Utils.getHclStyle = function (map) {
-            //Check to see if style is high contrast.
-            if (map.getMapContainer().classList.contains("high-contrast-dark")) {
-                return azmaps.ControlStyle.dark;
-            }
-            else if (map.getMapContainer().classList.contains("high-contrast-light")) {
-                return azmaps.ControlStyle.light;
-            }
-            return null;
-        };
-        /**
-         * Gets the control style based on the map style when control style set to auto.
-         * @param map The map instance.
-         */
-        Utils.getAutoStyle = function (map) {
-            switch (map.getStyle().style) {
-                //When the style is dark (i.e. satellite, night), show the dark colored theme.
-                case 'satellite':
-                case 'satellite_road_labels':
-                case 'grayscale_dark':
-                case 'night':
-                case 'night':
-                case 'high_contrast_dark':
-                    return azmaps.ControlStyle.dark;
-            }
-            return azmaps.ControlStyle.light;
-        };
-        return Utils;
-    }());
-
     /** A control that toggles the map or a specific container from its defined size to a fullscreen size. */
     var FullscreenControl = /** @class */ (function (_super) {
         __extends(FullscreenControl, _super);
@@ -148,20 +111,21 @@ MIT License
             _this._toggleFullscreen = function () {
                 if (_this._container) {
                     if (_this.isFullscreen()) {
-                        var closeFullScreenFn = document['webkitCancelFullScreen']
+                        var closeFullscreenFn = document['webkitCancelFullScreen']
                             || document['cancelFullScreen']
                             || document['mozCancelFullScreen']
                             || document['msExitFullscreen']
                             || document.exitFullscreen;
-                        closeFullScreenFn.call(document);
+                        closeFullscreenFn.call(document);
                     }
                     else {
-                        var openFullScreenFn = _this._container['webkitRequestFullScreen']
-                            || _this._container['requestFullScreen']
-                            || _this._container['mozRequestFullScreen']
-                            || _this._container['msRequestFullscreen']
-                            || _this._container.requestFullscreen;
-                        openFullScreenFn.call(_this._container);
+                        var c = _this._container;
+                        var openFullscreenFn = c['webkitRequestFullScreen']
+                            || c['requestFullScreen']
+                            || c['mozRequestFullScreen']
+                            || c['msRequestFullscreen']
+                            || c.requestFullscreen;
+                        openFullscreenFn.call(c);
                     }
                 }
             };
@@ -196,8 +160,14 @@ MIT License
             this._map = map;
             var isSupported = FullscreenControl.isSupported();
             if (isSupported || (!isSupported && !this._options.hideIfUnsupported)) {
-                this._hclStyle = Utils.getHclStyle(map);
-                this._resource = FullscreenControl._getTranslations(this._map.getStyle().language);
+                var mcl = map.getMapContainer().classList;
+                if (mcl.contains("high-contrast-dark")) {
+                    this._hclStyle = 'dark';
+                }
+                else if (mcl.contains("high-contrast-light")) {
+                    this._hclStyle = 'light';
+                }
+                this._resource = this._getTranslations(this._map.getStyle().language);
                 if (!this._container) {
                     this._container = this._map.getMapContainer();
                     if (!this._container.classList.contains('azmaps-map-fullscreen-container')) {
@@ -209,20 +179,22 @@ MIT License
                 style.innerHTML = FullscreenControl._fullscreenCss;
                 document.body.appendChild(style);
                 //Create the fullscreen button.
-                this._btnContainer = document.createElement('div');
-                this._btnContainer.classList.add('azure-maps-control-container');
-                this._btnContainer.setAttribute('aria-label', this._resource.title);
-                this._btnContainer.style.flexDirection = 'column';
-                this._button = document.createElement("button");
-                this._button.classList.add('azmaps-map-fullscreen-btn');
-                this._button.classList.add('azmaps-map-fullscreen-expand');
-                this._button.setAttribute('title', this._resource.view);
-                this._button.setAttribute('alt', this._resource.view);
-                this._button.setAttribute('type', 'button');
-                this._button.addEventListener('click', this._toggleFullscreen);
+                var bc = document.createElement('div');
+                bc.classList.add('azure-maps-control-container');
+                bc.setAttribute('aria-label', this._resource[2]);
+                bc.style.flexDirection = 'column';
+                this._btnContainer = bc;
+                var b = document.createElement("button");
+                b.classList.add('azmaps-map-fullscreen-btn');
+                b.classList.add('azmaps-map-fullscreen-expand');
+                b.setAttribute('title', this._resource[0]);
+                b.setAttribute('alt', this._resource[0]);
+                b.setAttribute('type', 'button');
+                b.addEventListener('click', this._toggleFullscreen);
+                this._button = b;
                 this._updateBtn();
                 this._btnContainer.appendChild(this._button);
-                var changeEventName;
+                var changeEventName = void 0;
                 if (document['fullscreenchange']) {
                     changeEventName = 'fullscreenchange';
                 }
@@ -271,23 +243,25 @@ MIT License
                     if (isFullscreen) {
                         this._toggleFullscreen();
                     }
-                    if (this._container && this._container.classList.contains('azmaps-map-fullscreen-container')) {
-                        this._container.classList.remove('azmaps-map-fullscreen-container');
+                    var c = this._container;
+                    if (c && c.classList.contains('azmaps-map-fullscreen-container')) {
+                        c.classList.remove('azmaps-map-fullscreen-container');
                     }
                     this._options.container = options.container;
-                    this._container = null;
+                    c = null;
                     if (options.container === null) {
-                        this._container = this._map.getMapContainer();
+                        c = this._map.getMapContainer();
                     }
                     else if (typeof options.container === 'string') {
-                        this._container = document.getElementById(options.container);
-                        if (!this._container) {
-                            this._container = document.querySelector(options.container);
+                        c = document.getElementById(options.container);
+                        if (!c) {
+                            c = document.querySelector(options.container);
                         }
                     }
                     else if (options.container instanceof HTMLElement) {
-                        this._container = options.container;
+                        c = options.container;
                     }
+                    this._container = c;
                     if (this._container && !this._container.classList.contains('azmaps-map-fullscreen-container')) {
                         this._container.classList.add('azmaps-map-fullscreen-container');
                         if (isFullscreen) {
@@ -351,7 +325,7 @@ MIT License
          * An event handler for when the map style changes. Used when control style is set to auto.
          */
         FullscreenControl.prototype._mapStyleChanged = function () {
-            if (this._button) {
+            if (this._button && !this._hclStyle) {
                 this._button.style.backgroundColor = this._getColorFromMapStyle();
             }
         };
@@ -359,183 +333,143 @@ MIT License
          * Retrieves the background color for the button based on the map style. This is used when style is set to auto.
          */
         FullscreenControl.prototype._getColorFromMapStyle = function () {
-            var style = this._map.getStyle().style;
-            var color = 'white';
-            switch (style) {
-                //When the style is dark (i.e. satellite, night), show the dark colored theme.
-                case 'satellite':
-                case 'satellite_road_labels':
-                case 'grayscale_dark':
-                case 'night':
-                    color = this._darkColor;
-                    break;
+            //When the style is dark (i.e. satellite, night), show the dark colored theme.
+            if (['satellite', 'satellite_road_labels', 'grayscale_dark', 'night'].indexOf(this._map.getStyle().style) > -1) {
+                return this._darkColor;
             }
-            return color;
+            return 'white';
         };
         /**
          * Toggles the fullscreen state of the button.
          */
         FullscreenControl.prototype._updateBtn = function () {
-            var ariaLabel = this._resource.view;
+            var ariaLabel = this._resource[0];
             var removeClass, addClass;
             if (this.isFullscreen()) {
                 //Is fullscreen, exit.
-                ariaLabel = this._resource.exit;
-                removeClass = 'azmaps-map-fullscreen-expand';
-                addClass = 'azmaps-map-fullscreen-collapse';
+                ariaLabel = this._resource[1];
+                removeClass = 'expand';
+                addClass = 'collapse';
                 this._invokeEvent('fullscreenchanged', false);
             }
             else {
                 //Make map full screen.
-                ariaLabel = this._resource.view;
-                removeClass = 'azmaps-map-fullscreen-collapse';
-                addClass = 'azmaps-map-fullscreen-expand';
+                ariaLabel = this._resource[0];
+                removeClass = 'collapse';
+                addClass = 'expand';
                 this._invokeEvent('fullscreenchanged', true);
             }
             this._button.setAttribute('title', ariaLabel);
             this._button.setAttribute('alt', ariaLabel);
-            this._button.classList.remove(removeClass);
-            this._button.classList.add(addClass);
+            this._button.classList.remove('azmaps-map-fullscreen-' + removeClass);
+            this._button.classList.add('azmaps-map-fullscreen-' + addClass);
         };
         /**
          * Returns the set of translation text resources needed for the fullscreen control for a given language.
+         * Array values: 0 - View Fullscreen, 1 - Exit Fullscreen, 2 - Full Screen Control
          * @param lang The language code to retrieve the text resources for.
          * @returns An object containing text resources in the specified language.
          */
-        FullscreenControl._getTranslations = function (lang) {
+        FullscreenControl.prototype._getTranslations = function (lang) {
             if (lang && lang.indexOf('-') > 0) {
                 lang = lang.substring(0, lang.indexOf('-'));
             }
-            switch (lang.toLowerCase()) {
-                //Afrikaans
-                case 'af':
-                    return { exit: 'Verlaat volskerm', view: 'Vertoon volskerm', title: 'Volskerm beheer' };
-                //Arabic
-                case 'ar':
-                    return { exit: 'الخروج من وضع ملئ للشاشة', view: 'المشاهدة بحجم الشاشة', title: 'تحكم ملء الشاشة' };
-                //Basque
-                case 'eu':
-                    return { exit: 'Irten pantaila osoko', view: 'ikusi pantaila osoan', title: 'Pantaila osoa kontrol' };
-                //Bulgarian
-                case 'bg':
-                    return { exit: 'Изход на цял екран', view: 'Преглед на цял екран', title: 'Контрол на цял екран' };
-                //Chinese
-                case 'zh':
-                    return { exit: '退出全屏', view: '全屏查看', title: '全屏控制' };
-                //Croatian
-                case 'hr':
-                    return { exit: 'Izlaz na cijelom zaslonu', view: 'Prikaz na cijelom zaslonu', title: 'Puni zaslon kontrola' };
-                //Czech
-                case 'cs':
-                    return { exit: 'Ukončit celou obrazovku', view: 'pohled na celou obrazovku', title: 'fullscreen kontrola' };
-                //Danish
-                case 'da':
-                    return { exit: 'Afslut fuld skærm', view: 'Se fuld skærm', title: 'fullscreen kontrol' };
-                //Dutch
-                case 'nl':
-                    return { exit: 'Verlaat volledig scherm', view: 'Bekijk fullscreen', title: 'fullscreen controle' };
-                //Estonian
-                case 'et':
-                    return { exit: 'Välja täisekraani', view: 'Vaata täisekraani', title: 'Täisekraan kontrolli' };
-                //Finnish
-                case 'fi':
-                    return { exit: 'Poistu koko näytöstä', view: 'Koko näyttö', title: 'fullscreen ohjaus' };
-                //French
-                case 'fr':
-                    return { exit: 'Quitter le mode plein écran', view: 'Voir en plein écran', title: 'Contrôle plein écran' };
-                //Galician
-                case 'gl':
-                    return { exit: 'Saia da pantalla completa', view: 'Ver a pantalla completa', title: 'Control de pantalla completa' };
-                //German
-                case 'de':
-                    return { exit: 'Beenden Vollbild', view: 'Ansicht Vollbild', title: 'Vollbild-Steuerung' };
-                //Greek
-                case 'el':
-                    return { exit: 'Έξοδος από πλήρη οθόνη', view: 'Προβολή σε πλήρη οθόνη', title: 'Πλήρης οθόνη ελέγχου' };
-                //Hindi
-                case 'hi':
-                    return { exit: 'पूर्ण स्क्रीन से बाहर निकलें', view: 'पूर्णस्क्रीन देखें', title: 'पूर्ण स्क्रीन नियंत्रण' };
-                //Hungarian
-                case 'hu':
-                    return { exit: 'Kilépés a teljes képernyős', view: 'Megtekintés teljes képernyőn', title: 'Nagyítás ellenőrzés' };
-                //Indonesian
-                case 'id':
-                    return { exit: 'Keluar layar penuh', view: 'Lihat fullscreen', title: 'Kontrol layar penuh' };
-                //Italian
-                case 'it':
-                    return { exit: 'Esci da schermo intero', view: 'Visualizza schermo intero', title: 'controllo a tutto schermo' };
-                //Japanese
-                case 'ja':
-                    return { exit: '出口フルスクリーン', view: '表示フルスクリーン', title: 'フルスクリーンコントロール' };
-                //Kazakh
-                case 'kk':
-                    return { exit: 'Толық экраннан шығу', view: 'View толық экран', title: 'Fullscreen бақылау' };
-                //Korean
-                case 'ko':
-                    return { exit: '전체 화면 종료', view: '전체 화면보기', title: '전체 화면 제어' };
-                //Spanish
-                case 'es':
-                    return { exit: 'Salir de pantalla completa', view: 'Ver en pantalla completa', title: 'control de pantalla completa' };
-                //Latvian
-                case 'lv':
-                    return { exit: 'Iziet no pilnekrāna', view: 'Skatīt pilnekrāna režīmā', title: 'Pilnekrāna kontrole' };
-                //Lithuanian
-                case 'lt':
-                    return { exit: 'Išjungti viso ekrano režimą', view: 'Peržiūrėti per visą ekraną', title: 'Fullscreen kontrolė' };
-                //Malay
-                case 'ms':
-                    return { exit: 'keluar skrin penuh', view: 'paparan skrin penuh', title: 'kawalan skrin penuh' };
-                //Norwegian
-                case 'nb':
-                    return { exit: 'Avslutt full skjerm', view: 'Vis fullskjerm', title: 'Full skjermkontroll' };
-                //Polish
-                case 'pl':
-                    return { exit: 'Wyłączyć tryb pełnoekranowy', view: 'Zobacz na pełnym ekranie', title: 'kontrola na pełnym ekranie' };
-                //Portuguese
-                case 'pt':
-                    return { exit: 'Sair em tela cheia', view: 'Ver tela cheia', title: 'controle de tela cheia' };
-                //Romanian
-                case 'ro':
-                    return { exit: 'Ieșire ecran complet', view: 'Vezi tot ecranul', title: 'controlul pe tot ecranul' };
-                //Russian
-                case 'ru':
-                    return { exit: 'Выход из полноэкранного режима', view: 'Просмотреть весь экран', title: 'Полноэкранный контроль' };
-                //Serbian
-                case 'sr':
-                    return { exit: 'Излаз из целог екрана', view: 'Погледај преко целог екрана', title: 'фуллсцреен контрола' };
-                //Slovak
-                case 'sk':
-                    return { exit: 'Skončiť celú obrazovku', view: 'pohľad na celú obrazovku', title: 'fullscreen kontrola' };
-                //Slovenian
-                case 'sl':
-                    return { exit: 'Izhod celozaslonski', view: 'Poglej celozaslonski', title: 'celozaslonski nadzor' };
-                //Swedish
-                case 'sv':
-                    return { exit: 'Avsluta helskärm', view: 'Visa helskärm', title: 'Full skärms kontroll' };
-                //Thai
-                case 'th':
-                    return { exit: 'แบบเต็มหน้าจอออกจาก', view: 'ดูแบบเต็มจอ', title: 'การควบคุมแบบเต็มหน้าจอ' };
-                //Turkish
-                case 'tr':
-                    return { exit: 'Tam ekrandan çık', view: 'Tam ekran görüntüle', title: 'Tam Ekran kontrolü' };
-                //Ukrainian
-                case 'uk':
-                    return { exit: 'Вихід з повноекранного режиму', view: 'Переглянути весь екран', title: 'Редакція контроль' };
-                //Vietnamese
-                case 'vi':
-                    return { exit: 'Thoát toàn màn hình', view: 'Xem toàn màn hình', title: 'kiểm soát toàn màn hình' };
-                //English
-                case 'en':
-                default:
-                    return { exit: 'Exit Fullscreen', view: 'View Fullscreen', title: 'Fullscreen Control' };
+            var t = FullscreenControl._translations;
+            var r = t[lang];
+            if (!r) {
+                r = t['en'];
             }
+            return r;
         };
+        //TODO: consider converting images to SVGs for smaller file size.
         FullscreenControl._fullscreenCss = '.azmaps-map-fullscreen-container:-webkit-full-screen{width:100%;height:100%;}.azmaps-map-fullscreen-container:-moz-full-screen{width:100%;height:100%;}.azmaps-map-fullscreen-container:-ms-fullscreen{width:100%;height:100%;}.azmaps-map-fullscreen-container:-o-full-screen{width:100%;height:100%;}.azmaps-map-fullscreen-container:-full-screen{width:100%;height:100%;}' +
             '.azmaps-map-fullscreen-btn{margin:0;padding:0;border:none;border-collapse:collapse;width:32px;height:32px;text-align:center;cursor:pointer;line-height:32px;background-repeat:no-repeat;background-size:20px;background-position:center center;z-index:200;box-shadow:0px 0px 4px rgba(0,0,0,0.16);}' +
             '.azmaps-map-fullscreen-expand{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAF6ePCOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAVUExURQAAAJacn5ean5idopicopicoZicoZbVOdIAAAAGdFJOUwBQYI+fucOe/hkAAAAJcEhZcwAAFxEAABcRAcom8z8AAADMSURBVDhPzZSNDoIwDITn397/kV27il9Rzmwq4Qux194VRmIombqqDzCvtV236LvRJos28rD6RlPGs5jpvHaZVTLWe0nEbCkxbnKkU4zcMw7xpvTqeHrho2WzzDfWHHPPmraCmAXWzRDrtZ7ZpCeNOe03c3xnL2bOdginc2Iz6/yYuDGxP+WG1Q8Qmvxxx6UGQUgNgpAaBCE1CEJqEITUIHhxXGquTjTHBa+mQRBSgyCkBkFIDYKQGgQhNQhCahDsMmGfoA1r351BSrkDTQQSzEhW2qYAAAAASUVORK5CYII=);}' +
             '.azmaps-map-fullscreen-expand:hover{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAF6ePCOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAVUExURQAAADCszDCqzTKtzzKszzCszzGszvdFYikAAAAGdFJOUwBQYI+fucOe/hkAAAAJcEhZcwAAFxEAABcRAcom8z8AAADMSURBVDhPzZSNDoIwDITn397/kV27il9Rzmwq4Qux194VRmIombqqDzCvtV236LvRJos28rD6RlPGs5jpvHaZVTLWe0nEbCkxbnKkU4zcMw7xpvTqeHrho2WzzDfWHHPPmraCmAXWzRDrtZ7ZpCeNOe03c3xnL2bOdginc2Iz6/yYuDGxP+WG1Q8Qmvxxx6UGQUgNgpAaBCE1CEJqEITUIHhxXGquTjTHBa+mQRBSgyCkBkFIDYKQGgQhNQhCahDsMmGfoA1r351BSrkDTQQSzEhW2qYAAAAASUVORK5CYII=);}' +
             '.azmaps-map-fullscreen-collapse{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAD1BMVEWWnJ+Xmp+YnKKYnKKYnKHcteq5AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAAFxEAABcRAcom8z8AAAAHdElNRQfiCw8VGzLD58rvAAAANUlEQVQ4y2NgIB+wuLg4IKhRGUpkXGAAKgMFg0JmuIHBH9ajuYTaMszGxgZAiklJSYFg+gAAKrRnAIqOPxgAAAAASUVORK5CYII=);}' +
             '.azmaps-map-fullscreen-collapse:hover{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyBAMAAADsEZWCAAAAD1BMVEUwrMwwqs0yrM8yrM8xrM6kUFC0AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAAFxEAABcRAcom8z8AAAAHdElNRQfiCw8VGSuVugCtAAAANUlEQVQ4y2NgIB+wuLg4IKhRGUpkXGAAKgMFg0JmuIHBH9ajuYTaMszGxgZAiklJSYFg+gAAKrRnAIqOPxgAAAAASUVORK5CYII=);}';
+        FullscreenControl._translations = {
+            //Afrikaans
+            'af': ['Verlaat volskerm', 'Vertoon volskerm', 'Volskerm beheer'],
+            //Arabic
+            'ar': ['الخروج من وضع ملئ للشاشة', 'المشاهدة بحجم الشاشة', 'تحكم ملء الشاشة'],
+            //Basque
+            'eu': ['Irten pantaila osoko', 'ikusi pantaila osoan', 'Pantaila osoa kontrol'],
+            //Bulgarian
+            'bg': ['Изход на цял екран', 'Преглед на цял екран', 'Контрол на цял екран'],
+            //Chinese
+            'zh': ['退出全屏', '全屏查看', '全屏控制'],
+            //Croatian
+            'hr': ['Izlaz na cijelom zaslonu', 'Prikaz na cijelom zaslonu', 'Puni zaslon kontrola'],
+            //Czech
+            'cs': ['Ukončit celou obrazovku', 'pohled na celou obrazovku', 'fullscreen kontrola'],
+            //Danish
+            'da': ['Afslut fuld skærm', 'Se fuld skærm', 'fullscreen kontrol'],
+            //Dutch
+            'nl': ['Verlaat volledig scherm', 'Bekijk fullscreen', 'fullscreen controle'],
+            //Estonian
+            'et': ['Välja täisekraani', 'Vaata täisekraani', 'Täisekraan kontrolli'],
+            //Finnish
+            'fi': ['Poistu koko näytöstä', 'Koko näyttö', 'fullscreen ohjaus'],
+            //French
+            'fr': ['Quitter le mode plein écran', 'Voir en plein écran', 'Contrôle plein écran'],
+            //Galician
+            'gl': ['Saia da pantalla completa', 'Ver a pantalla completa', 'Control de pantalla completa'],
+            //German
+            'de': ['Beenden Vollbild', 'Ansicht Vollbild', 'Vollbild-Steuerung'],
+            //Greek
+            'el': ['Έξοδος από πλήρη οθόνη', 'Προβολή σε πλήρη οθόνη', 'Πλήρης οθόνη ελέγχου'],
+            //Hindi
+            'hi': ['पूर्ण स्क्रीन से बाहर निकलें', 'पूर्णस्क्रीन देखें', 'पूर्ण स्क्रीन नियंत्रण'],
+            //Hungarian
+            'hu': ['Kilépés a teljes képernyős', 'Megtekintés teljes képernyőn', 'Nagyítás ellenőrzés'],
+            //Indonesian
+            'id': ['Keluar layar penuh', 'Lihat fullscreen', 'Kontrol layar penuh'],
+            //Italian
+            'it': ['Esci da schermo intero', 'Visualizza schermo intero', 'controllo a tutto schermo'],
+            //Japanese
+            'ja': ['出口フルスクリーン', '表示フルスクリーン', 'フルスクリーンコントロール'],
+            //Kazakh
+            'kk': ['Толық экраннан шығу', 'View толық экран', 'Fullscreen бақылау'],
+            //Korean
+            'ko': ['전체 화면 종료', '전체 화면보기', '전체 화면 제어'],
+            //Spanish
+            'es': ['Salir de pantalla completa', 'Ver en pantalla completa', 'control de pantalla completa'],
+            //Latvian
+            'lv': ['Iziet no pilnekrāna', 'Skatīt pilnekrāna režīmā', 'Pilnekrāna kontrole'],
+            //Lithuanian
+            'lt': ['Išjungti viso ekrano režimą', 'Peržiūrėti per visą ekraną', 'Fullscreen kontrolė'],
+            //Malay
+            'ms': ['keluar skrin penuh', 'paparan skrin penuh', 'kawalan skrin penuh'],
+            //Norwegian
+            'nb': ['Avslutt full skjerm', 'Vis fullskjerm', 'Full skjermkontroll'],
+            //Polish
+            'pl': ['Wyłączyć tryb pełnoekranowy', 'Zobacz na pełnym ekranie', 'kontrola na pełnym ekranie'],
+            //Portuguese
+            'pt': ['Sair em tela cheia', 'Ver tela cheia', 'controle de tela cheia'],
+            //Romanian
+            'ro': ['Ieșire ecran complet', 'Vezi tot ecranul', 'controlul pe tot ecranul'],
+            //Russian
+            'ru': ['Выход из полноэкранного режима', 'Просмотреть весь экран', 'Полноэкранный контроль'],
+            //Serbian
+            'sr': ['Излаз из целог екрана', 'Погледај преко целог екрана', 'фуллсцреен контрола'],
+            //Slovak
+            'sk': ['Skončiť celú obrazovku', 'pohľad na celú obrazovku', 'fullscreen kontrola'],
+            //Slovenian
+            'sl': ['Izhod celozaslonski', 'Poglej celozaslonski', 'celozaslonski nadzor'],
+            //Swedish
+            'sv': ['Avsluta helskärm', 'Visa helskärm', 'Full skärms kontroll'],
+            //Thai
+            'th': ['แบบเต็มหน้าจอออกจาก', 'ดูแบบเต็มจอ', 'การควบคุมแบบเต็มหน้าจอ'],
+            //Turkish
+            'tr': ['Tam ekrandan çık', 'Tam ekran görüntüle', 'Tam Ekran kontrolü'],
+            //Ukrainian
+            'uk': ['Вихід з повноекранного режиму', 'Переглянути весь екран', 'Редакція контроль'],
+            //Vietnamese
+            'vi': ['Thoát toàn màn hình', 'Xem toàn màn hình', 'kiểm soát toàn màn hình'],
+            //English
+            'en': ['Exit Fullscreen', 'View Fullscreen', 'Fullscreen Control']
+        };
         return FullscreenControl;
     }(azmaps.internal.EventEmitter));
 

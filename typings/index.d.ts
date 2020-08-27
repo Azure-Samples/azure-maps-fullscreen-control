@@ -47,7 +47,7 @@ declare namespace atlas {
 
         /**
         * The style of the control. Can be; light, dark, auto, or any CSS3 color. When set to auto, the style will change based on the map style.
-        * Default `light'.
+        * Overridden if device is in high contrast mode.
         * @default light
         */
         style?: azmaps.ControlStyle | string;
