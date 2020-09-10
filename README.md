@@ -110,6 +110,7 @@ Options for the FullscreenControl.
 
 * [Azure Maps Animation module](https://github.com/Azure-Samples/azure-maps-animations)
 * [Azure Maps Geolocation Control module](https://github.com/Azure-Samples/azure-maps-geolocation-control)
+* [Azure Maps Selection Control module](https://github.com/Azure-Samples/azure-maps-selection-control)
 * [Azure Maps Sync Map module](https://github.com/Azure-Samples/azure-maps-sync-maps)
 * [Azure Maps Services UI module](https://github.com/Azure-Samples/azure-maps-services-ui)
 
