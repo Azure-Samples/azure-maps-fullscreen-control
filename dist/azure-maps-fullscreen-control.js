@@ -109,17 +109,19 @@ MIT License
              * Private Methods
              ***************************/
             _this._toggleFullscreen = function () {
-                if (_this._container) {
-                    if (_this.isFullscreen()) {
-                        var closeFullscreenFn = document['webkitCancelFullScreen']
-                            || document['cancelFullScreen']
-                            || document['mozCancelFullScreen']
-                            || document['msExitFullscreen']
-                            || document.exitFullscreen;
+                var self = _this;
+                if (self._container) {
+                    if (self.isFullscreen()) {
+                        var d = document;
+                        var closeFullscreenFn = d['webkitCancelFullScreen']
+                            || d['cancelFullScreen']
+                            || d['mozCancelFullScreen']
+                            || d['msExitFullscreen']
+                            || d.exitFullscreen;
                         closeFullscreenFn.call(document);
                     }
                     else {
-                        var c = _this._container;
+                        var c = self._container;
                         var openFullscreenFn = c['webkitRequestFullScreen']
                             || c['requestFullScreen']
                             || c['mozRequestFullScreen']
@@ -127,6 +129,15 @@ MIT License
                             || c.requestFullscreen;
                         openFullscreenFn.call(c);
                     }
+                }
+            };
+            /**
+             * An event handler for when the map style changes. Used when control style is set to auto.
+             */
+            _this._mapStyleChanged = function () {
+                var self = _this;
+                if (self._button && !self._hclStyle) {
+                    self._button.style.backgroundColor = self._getColorFromMapStyle();
                 }
             };
             _this._options = Object.assign(_this._options, options || {});
@@ -137,12 +148,12 @@ MIT License
          ***************************/
         /** Disposes the control. */
         FullscreenControl.prototype.dispose = function () {
-            var _this = this;
-            if (this._map) {
-                this._map.controls.remove(this);
+            var self = this;
+            if (self._map) {
+                self._map.controls.remove(self);
             }
-            Object.keys(this).forEach(function (k) {
-                _this[k] = null;
+            Object.keys(self).forEach(function (k) {
+                self[k] = null;
             });
         };
         /** Gets the options of the control. */
@@ -156,22 +167,23 @@ MIT License
          * @returns The HTML Element that represents the control.
          */
         FullscreenControl.prototype.onAdd = function (map, options) {
-            var _this = this;
-            this._map = map;
+            var self = this;
+            self._map = map;
             var isSupported = FullscreenControl.isSupported();
             if (isSupported || (!isSupported && !this._options.hideIfUnsupported)) {
                 var mcl = map.getMapContainer().classList;
                 if (mcl.contains("high-contrast-dark")) {
-                    this._hclStyle = 'dark';
+                    self._hclStyle = 'dark';
                 }
                 else if (mcl.contains("high-contrast-light")) {
-                    this._hclStyle = 'light';
+                    self._hclStyle = 'light';
                 }
-                this._resource = this._getTranslations(this._map.getStyle().language);
-                if (!this._container) {
-                    this._container = this._map.getMapContainer();
-                    if (!this._container.classList.contains('azmaps-map-fullscreen-container')) {
-                        this._container.classList.add('azmaps-map-fullscreen-container');
+                var resx = self._getTranslations(map.getStyle().language);
+                self._resource = resx;
+                if (!self._container) {
+                    self._container = this._map.getMapContainer();
+                    if (!self._container.classList.contains('azmaps-map-fullscreen-container')) {
+                        self._container.classList.add('azmaps-map-fullscreen-container');
                     }
                 }
                 //Add css for fullscreen. Add the CSS style for the control to the DOM.
@@ -181,19 +193,19 @@ MIT License
                 //Create the fullscreen button.
                 var bc = document.createElement('div');
                 bc.classList.add('azure-maps-control-container');
-                bc.setAttribute('aria-label', this._resource[2]);
+                bc.setAttribute('aria-label', resx[2]);
                 bc.style.flexDirection = 'column';
-                this._btnContainer = bc;
+                self._btnContainer = bc;
                 var b = document.createElement("button");
                 b.classList.add('azmaps-map-fullscreen-btn');
                 b.classList.add('azmaps-map-fullscreen-expand');
-                b.setAttribute('title', this._resource[0]);
-                b.setAttribute('alt', this._resource[0]);
+                b.setAttribute('title', resx[1]);
+                b.setAttribute('alt', resx[1]);
                 b.setAttribute('type', 'button');
-                b.addEventListener('click', this._toggleFullscreen);
-                this._button = b;
-                this._updateBtn();
-                this._btnContainer.appendChild(this._button);
+                b.addEventListener('click', self._toggleFullscreen);
+                self._button = b;
+                self._updateBtn();
+                self._btnContainer.appendChild(self._button);
                 var changeEventName = void 0;
                 if (document['fullscreenchange']) {
                     changeEventName = 'fullscreenchange';
@@ -208,10 +220,10 @@ MIT License
                     changeEventName = 'MSFullscreenChange';
                 }
                 if (changeEventName) {
-                    document.addEventListener(changeEventName, function () { _this._updateBtn(); });
+                    document.addEventListener(changeEventName, function () { self._updateBtn(); });
                 }
-                this.setOptions(this._options);
-                return this._btnContainer;
+                self.setOptions(self._options);
+                return self._btnContainer;
             }
             return null;
         };
@@ -219,18 +231,20 @@ MIT License
          * Action to perform when control is removed from the map.
          */
         FullscreenControl.prototype.onRemove = function () {
-            var _this = this;
-            if (this._container && this._container.classList.contains('azmaps-map-fullscreen-container')) {
-                this._container.classList.remove('azmaps-map-fullscreen-container');
+            var self = this;
+            var c = self._container;
+            var bc = self._btnContainer;
+            if (c && c.classList.contains('azmaps-map-fullscreen-container')) {
+                c.classList.remove('azmaps-map-fullscreen-container');
             }
-            if (this._btnContainer) {
-                this._btnContainer.remove();
-                this._btnContainer = null;
+            if (bc) {
+                bc.remove();
+                self._btnContainer = null;
             }
-            if (this._options.style === 'auto') {
-                this._map.events.remove('styledata', function () { _this._mapStyleChanged(); });
+            if (self._options.style === 'auto') {
+                self._map.events.remove('styledata', self._mapStyleChanged);
             }
-            this._map = null;
+            self._map = null;
         };
         /**
          * Sets the options of the control.
@@ -238,19 +252,22 @@ MIT License
          */
         FullscreenControl.prototype.setOptions = function (options) {
             if (options) {
+                var self_1 = this;
+                var map = self_1._map;
+                var opt = self_1._options;
                 if (options.container !== undefined) {
-                    var isFullscreen = this.isFullscreen();
+                    var isFullscreen = self_1.isFullscreen();
                     if (isFullscreen) {
-                        this._toggleFullscreen();
+                        self_1._toggleFullscreen();
                     }
-                    var c = this._container;
+                    var c = self_1._container;
                     if (c && c.classList.contains('azmaps-map-fullscreen-container')) {
                         c.classList.remove('azmaps-map-fullscreen-container');
                     }
-                    this._options.container = options.container;
+                    opt.container = options.container;
                     c = null;
                     if (options.container === null) {
-                        c = this._map.getMapContainer();
+                        c = map.getMapContainer();
                     }
                     else if (typeof options.container === 'string') {
                         c = document.getElementById(options.container);
@@ -261,45 +278,45 @@ MIT License
                     else if (options.container instanceof HTMLElement) {
                         c = options.container;
                     }
-                    this._container = c;
-                    if (this._container && !this._container.classList.contains('azmaps-map-fullscreen-container')) {
-                        this._container.classList.add('azmaps-map-fullscreen-container');
+                    self_1._container = c;
+                    if (c && !c.classList.contains('azmaps-map-fullscreen-container')) {
+                        c.classList.add('azmaps-map-fullscreen-container');
                         if (isFullscreen) {
-                            this._toggleFullscreen();
+                            self_1._toggleFullscreen();
                         }
                     }
                 }
-                if (typeof options.hideIfUnsupported === 'boolean' && this._options.hideIfUnsupported !== options.hideIfUnsupported) {
-                    this._options.hideIfUnsupported = options.hideIfUnsupported;
-                    if (!FullscreenControl.isSupported() && this._map) {
-                        this.onRemove();
-                        this.onAdd(this._map);
+                if (typeof options.hideIfUnsupported === 'boolean' && opt.hideIfUnsupported !== options.hideIfUnsupported) {
+                    opt.hideIfUnsupported = options.hideIfUnsupported;
+                    if (!FullscreenControl.isSupported() && map) {
+                        self_1.onRemove();
+                        self_1.onAdd(map);
                     }
                 }
                 if (typeof options.style === 'string') {
                     var color = 'white';
-                    if (this._hclStyle) {
-                        if (this._hclStyle === 'dark') {
-                            color = this._darkColor;
+                    if (self_1._hclStyle) {
+                        if (self_1._hclStyle === 'dark') {
+                            color = self_1._darkColor;
                         }
                     }
                     else {
-                        if (this._options.style === 'auto') {
-                            this._map.events.remove('styledata', this._mapStyleChanged);
+                        if (opt.style === 'auto') {
+                            map.events.remove('styledata', self_1._mapStyleChanged);
                         }
-                        this._options.style = options.style;
+                        opt.style = options.style;
                         switch (options.style) {
                             case 'dark':
-                                color = this._darkColor;
+                                color = self_1._darkColor;
                                 break;
                             case 'auto':
                                 //Color will change between light and dark depending on map style.
-                                this._map.events.add('styledata', this._mapStyleChanged);
-                                color = this._getColorFromMapStyle();
+                                map.events.add('styledata', self_1._mapStyleChanged);
+                                color = self_1._getColorFromMapStyle();
                                 break;
                         }
                     }
-                    this._button.style.backgroundColor = color;
+                    self_1._button.style.backgroundColor = color;
                 }
             }
         };
@@ -307,27 +324,21 @@ MIT License
          * Checks if the map or specified container is in fullscreen mode or not.
          */
         FullscreenControl.prototype.isFullscreen = function () {
-            return !(!document['fullscreenElement'] &&
-                !document['msFullscreenElement'] &&
-                !document['mozFullScreenElement'] &&
-                !document['webkitFullscreenElement']);
+            var d = document;
+            return !(!d['fullscreenElement'] &&
+                !d['msFullscreenElement'] &&
+                !d['mozFullScreenElement'] &&
+                !d['webkitFullscreenElement']);
         };
         /**
          * Checks to see if the browser supports going into fullscreen mode.
          */
         FullscreenControl.isSupported = function () {
-            return document['fullscreenEnabled'] ||
-                document['msFullscreenEnabled'] ||
-                document['mozFullScreenEnabled'] ||
-                document['webkitFullscreenEnabled'];
-        };
-        /**
-         * An event handler for when the map style changes. Used when control style is set to auto.
-         */
-        FullscreenControl.prototype._mapStyleChanged = function () {
-            if (this._button && !this._hclStyle) {
-                this._button.style.backgroundColor = this._getColorFromMapStyle();
-            }
+            var d = document;
+            return d['fullscreenEnabled'] ||
+                d['msFullscreenEnabled'] ||
+                d['mozFullScreenEnabled'] ||
+                d['webkitFullscreenEnabled'];
         };
         /**
          * Retrieves the background color for the button based on the map style. This is used when style is set to auto.
@@ -343,26 +354,30 @@ MIT License
          * Toggles the fullscreen state of the button.
          */
         FullscreenControl.prototype._updateBtn = function () {
-            var ariaLabel = this._resource[0];
-            var removeClass, addClass;
-            if (this.isFullscreen()) {
+            var self = this;
+            var resx = self._resource;
+            var ariaLabel = resx[1];
+            var removeClass;
+            var addClass;
+            if (self.isFullscreen()) {
                 //Is fullscreen, exit.
-                ariaLabel = this._resource[1];
+                ariaLabel = resx[0];
                 removeClass = 'expand';
                 addClass = 'collapse';
-                this._invokeEvent('fullscreenchanged', false);
+                self._invokeEvent('fullscreenchanged', false);
             }
             else {
                 //Make map full screen.
-                ariaLabel = this._resource[0];
+                ariaLabel = resx[1];
                 removeClass = 'collapse';
                 addClass = 'expand';
-                this._invokeEvent('fullscreenchanged', true);
+                self._invokeEvent('fullscreenchanged', true);
             }
-            this._button.setAttribute('title', ariaLabel);
-            this._button.setAttribute('alt', ariaLabel);
-            this._button.classList.remove('azmaps-map-fullscreen-' + removeClass);
-            this._button.classList.add('azmaps-map-fullscreen-' + addClass);
+            var btn = self._button;
+            btn.setAttribute('title', ariaLabel);
+            btn.setAttribute('alt', ariaLabel);
+            btn.classList.remove('azmaps-map-fullscreen-' + removeClass);
+            btn.classList.add('azmaps-map-fullscreen-' + addClass);
         };
         /**
          * Returns the set of translation text resources needed for the fullscreen control for a given language.

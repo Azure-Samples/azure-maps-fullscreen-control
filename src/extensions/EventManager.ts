@@ -1,4 +1,4 @@
-import { FullscreenControl, FullscreenControlEvents } from '../control';
+import { FullscreenControl } from '../control';
 
 /**
  * This module partially defines the map control.
@@ -20,7 +20,7 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to add the event for.
          * @param callback The event handler callback.
          */
-        add(eventType: "fullscreenchanged", target: FullscreenControl, callback: (e: FullscreenControlEvents) => void): void;
+        add(eventType: "fullscreenchanged", target: FullscreenControl, callback: (e: boolean) => void): void;
 
         /**
          * Adds an event to the `fullscreenchanged` once.
@@ -28,7 +28,7 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to add the event for.
          * @param callback The event handler callback.
          */
-        addOnce(eventType: "fullscreenchanged", target: FullscreenControl, callback: (e: FullscreenControlEvents) => void): void;
+        addOnce(eventType: "fullscreenchanged", target: FullscreenControl, callback: (e: boolean) => void): void;
 
  
         /**
@@ -37,6 +37,6 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to remove the event for.
          * @param callback The event handler callback.
          */
-        remove(eventType: string, target: FullscreenControl, callback: (e?: any) => void): void;
+        remove(eventType: string, target: FullscreenControl, callback: (e: boolean) => void): void;
     }
 }

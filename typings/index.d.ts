@@ -86,7 +86,7 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to add the event for.
          * @param callback The event handler callback.
          */
-        add(eventType: "fullscreenchanged", target: atlas.control.FullscreenControl, callback: (e:  atlas.control.FullscreenControlEvents) => void): void;
+        add(eventType: "fullscreenchanged", target: atlas.control.FullscreenControl, callback: (e: boolean) => void): void;
 
         /**
          * Adds an event to the `fullscreenchanged` once.
@@ -94,7 +94,7 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to add the event for.
          * @param callback The event handler callback.
          */
-        addOnce(eventType: "fullscreenchanged", target: atlas.control.FullscreenControl, callback: (e:  atlas.control.FullscreenControlEvents) => void): void;
+        addOnce(eventType: "fullscreenchanged", target: atlas.control.FullscreenControl, callback: (e: boolean) => void): void;
 
  
         /**
@@ -103,7 +103,7 @@ declare module "azure-maps-control" {
          * @param target The `fullscreenchanged` to remove the event for.
          * @param callback The event handler callback.
          */
-        remove(eventType: string, target: atlas.control.FullscreenControl, callback: (e?: any) => void): void;
+        remove(eventType: string, target: atlas.control.FullscreenControl, callback: (e: boolean) => void): void;
     }
 }
 
