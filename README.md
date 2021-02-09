@@ -1,6 +1,6 @@
 ---
 page_type: sample
-description: An Azure Maps Web SDK module that provides a control that uses the browser's geolocation API to locate the user on the map.
+description: An Azure Maps Web SDK module that provides a control to display the map in fullscreen mode. 
 languages:
 - javascript
 - typescript
@@ -9,9 +9,9 @@ products:
 - azure-maps
 ---
 
-# Azure Maps Geolocation Control module
+# Azure Maps Fullscreen Control module
 
-An Azure Maps Web SDK module that provides a control to display the map in fullscreen mode. 
+An Azure Maps Web SDK module that provides a control to display the map in fullscreen mode.
 
 Note that not all browsers support fullscreen mode, see https://caniuse.com/#search=fullscreen for a list of current browser versions that support fullscreen mode. By default this control will hide itself if the browser it is loaded in does not support fullscreen mode. You can also use the `FullscreenControl.isSupported` static method to check support programmatically. 
 
