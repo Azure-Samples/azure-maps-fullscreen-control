@@ -364,14 +364,14 @@ MIT License
                 ariaLabel = resx[0];
                 removeClass = 'expand';
                 addClass = 'collapse';
-                self._invokeEvent('fullscreenchanged', false);
+                self._invokeEvent('fullscreenchanged', true);
             }
             else {
                 //Make map full screen.
                 ariaLabel = resx[1];
                 removeClass = 'collapse';
                 addClass = 'expand';
-                self._invokeEvent('fullscreenchanged', true);
+                self._invokeEvent('fullscreenchanged', false);
             }
             var btn = self._button;
             btn.setAttribute('title', ariaLabel);
