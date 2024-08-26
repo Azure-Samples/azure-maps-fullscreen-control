@@ -17,11 +17,15 @@ Note that not all browsers support fullscreen mode, see https://caniuse.com/#sea
 
 **Samples**
 
-[Fullscreen control](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control)
-<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control.jpg" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control)
+[Fullscreen control](https://samples.azuremaps.com/?sample=fullscreen-control)
+<br/>[<img src="https://samples.azuremaps.com/controls/fullscreen-control/screenshot.jpg" height="200px">](https://samples.azuremaps.com/?sample=fullscreen-control)
 
-[Fullscreen control options](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control%20options)
-<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control-options.jpg" height="200px">](https://azuremapscodesamples.azurewebsites.net/index.html?sample=Fullscreen%20control%20options)
+[Fullscreen control options](https://samples.azuremaps.com/?sample=fullscreen-control-options)
+<br/>[<img src="https://github.com/Azure-Samples/AzureMapsCodeSamples/raw/master/AzureMapsCodeSamples/SiteResources/screenshots/Fullscreen-control-options.jpg" height="200px">](https://samples.azuremaps.com/?sample=fullscreen-control-options)
+
+[Swipe map with fullscreen support](https://samples.azuremaps.com/?sample=swipe-map-with-fullscreen-support)
+<br/>[<img src="https://samples.azuremaps.com/map/swipe-map-with-fullscreen-support/screenshot.jpg" height="200px">](https://samples.azuremaps.com/?sample=swipe-map-with-fullscreen-support)
+
 
 ## Getting started
 
